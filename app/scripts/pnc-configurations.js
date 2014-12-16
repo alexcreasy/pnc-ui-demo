@@ -23,8 +23,16 @@ $(document).ready(function() {
       { 'data': 'buildScript' },
       { 'data': 'scmUrl' },
       { 'data': 'patchesUrl' },
-      { 'data': 'creationTime' },
-      { 'data': 'lastModificationTime' },
+      { 'data': 
+        function(json) {
+          return new Date(json.creationTime*1000).toLocaleString();;
+        }
+      },
+      { 'data': 
+        function(json) {
+          return new Date(json.creationTime*1000).toLocaleString();;
+        } 
+      },
       { 'data':
         function(json) {
           console.log('button created');
