@@ -1,32 +1,35 @@
 // Initialize Datatables
 $(document).ready(function() {
+
+  // Clear all sessionStorage
+  sessionStorage.clear();
+
   var prodTable = $('#products').dataTable( {
+    "bAutoWidth": false,
+    stateSave: true,
     'ajax': {
-      'url': 'http://localhost:8080/pnc-web/rest/configuration',
+      'url': 'http://localhost:8080/pnc-web/rest/product',
       'type': 'GET',
       'dataSrc': ''
     }, 
     'columns': [
       { 'data': 'id' },
-      { 'data': 'identifier' },
-      { 'data': 'projectName' },
-      { 'data': 
+      { 'data': 'name' },
+      { 'data': 'description' },
+      { 'data':
         function(json) {
-          return '<button class="build btn btn-block btn-danger" value="' + json.id + '">build</button>';
+          return '<button class="versions btn btn-default" value="' + json.id + '">View Versions</button>';
         }
       }
     ]
   });
 
-  $('#products tbody').on( 'click', 'button', function (event) {
+  $('#products tbody').on( 'click', 'button.versions', function (event) {
     event.preventDefault();
-    $.post(PNC_REST_BASE_URL + 'configuration/' + $(this).attr('value') + '/build').
-        done(function() {
-          $('#content').prepend('<br/><div class="alert alert-success" role="alert">Build successfully triggered</div>');
-          console.log('success');
-        }).fail(function() {
-          $('#content').prepend('<br/><div class="alert alert-danger" role="alert">Error attempting to trigger build</div>');
-          console.log('failure');
-        });
+    sessionStorage.setItem("productId", $(this).attr('value'));
+    console.log('Stored in sessionStorage: productId ' + $(this).attr('value'));
+
+    $(location).attr('href',"productversions.html");
   });
+
 } );
