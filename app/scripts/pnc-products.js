@@ -8,7 +8,7 @@ $(document).ready(function() {
     "bAutoWidth": false,
     stateSave: true,
     'ajax': {
-      'url': 'http://localhost:8080/pnc-web/rest/product',
+      'url': PNC_REST_BASE_URL + '/product',
       'type': 'GET',
       'dataSrc': ''
     }, 

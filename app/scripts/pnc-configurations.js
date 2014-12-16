@@ -13,7 +13,7 @@ $(document).ready(function() {
   var prodTable = $('#configuration').dataTable( {
     stateSave: true,
     'ajax': {
-      'url': 'http://localhost:8080/pnc-web/rest/product/' + productId + '/version/' + versionId + '/project/' + projectId + '/configuration',
+      'url': PNC_REST_BASE_URL + '/product/' + productId + '/version/' + versionId + '/project/' + projectId + '/configuration',
       'type': 'GET',
       'dataSrc': ''
     }, 

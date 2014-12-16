@@ -11,7 +11,7 @@ $(document).ready(function() {
   var prodTable = $('#projects').dataTable( {
     stateSave: true,
     'ajax': {
-      'url': 'http://localhost:8080/pnc-web/rest/product/' + productId + '/version/' + versionId + '/project',
+      'url': PNC_REST_BASE_URL + '/product/' + productId + '/version/' + versionId + '/project',
       'type': 'GET',
       'dataSrc': ''
     }, 
