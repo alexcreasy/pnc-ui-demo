@@ -5,7 +5,7 @@
 <html>
 <!--<![endif]-->
   <head>
-    <title>Project List</title>
+    <title>Configuration Add</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="../img/favicon.ico">
     <link rel="apple-touch-icon-precomposed" sizes="144x144" href="../lib/patternfly/dist/img/apple-touch-icon-144-precomposed.png">
@@ -26,7 +26,7 @@
     <script src="../lib/patternfly/components/datatables/media/js/jquery.dataTables.js"></script>
     <script src="../lib/patternfly/dist/js/patternfly.min.js"></script>
     <script src="../scripts/pnc-rest-api-url.js"></script>
-    <script src="../scripts/pnc-projects.js"></script>
+    <script src="../scripts/pnc-configurations.js"></script>
   </head>
   <body>
     <nav class="navbar navbar-default navbar-pf" role="navigation">
@@ -49,25 +49,48 @@
     </nav>
     <div class="container-fluid">
       <div class="row">
-        <div id="content" class="col-md-12">
+        <div id="configuration_content_add" class="col-md-12">
           <ol class="breadcrumb">
             <li><a href="product.html">Product</a></li>
             <li><a href="productversions.html">Version</a></li>
-            <li>Project</li>                        
+            <li><a href="project.html">Project</a></li>
+            <li><a href="configurations.html">Configuration</a></li>
+            <li>Create new configuration</li>
           </ol>
-          <h1>Project List</h1>
-          <table id="projects" class="datatable table table-striped table-bordered">
-            <thead>
-              <tr>
-                <th>Project ID</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>IssueTracker Url</th>
-                <th>Project Url</th>
-                <th style='width: 10%;'>Action</th>
-              </tr>
-            </thead>
-          </table>
+          <h1>New Configuration</h1>
+          
+          <form class="form-horizontal">
+            <div class="form-group">
+              <label class="col-md-2 control-label" for="textInput">Identifier</label>
+              <div class="col-md-6">
+                <input type="text" id="addConfIdentifier" class="form-control">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-2 control-label" for="textInput2">Build Script</label>
+              <div class="col-md-6">
+                <input type="text" id="addConfBuildScript" class="form-control">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-2 control-label" for="textInput3">Scm Url</label>
+              <div class="col-md-6">
+                <input type="text" id="addConfScmUrl" class="form-control">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-2 control-label" for="textInput4">Patches Url</label>
+              <div class="col-md-6">
+                <input type="text" id="addConfPatchesUrl" class="form-control">
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-md-10 col-md-offset-2">
+                <button type="button" class="saveConfiguration btn btn-primary">Save</button>
+                <button type="button" class="cancelConfiguration btn btn-default">Cancel</button>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -77,6 +100,6 @@
         <p class="text-muted">PNC v0.2 <a href="https://github.com/project-ncl/pnc">https://github.com/project-ncl/pnc</a>   Red Hat, Inc. &#169; 2014</p>
       </div>
       </div>
-    </footer>
+    </footer>  
   </body>
 </html>
