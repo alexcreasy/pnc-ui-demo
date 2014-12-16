@@ -11,7 +11,7 @@ $(document).ready(function() {
       'url': PNC_REST_BASE_URL + '/product',
       'type': 'GET',
       'dataSrc': ''
-    }, 
+    },
     'columns': [
       { 'data': 'id' },
       { 'data': 'name' },
