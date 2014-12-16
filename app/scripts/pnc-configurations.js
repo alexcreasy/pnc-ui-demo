@@ -23,25 +23,38 @@ $(document).ready(function() {
       { 'data': 'buildScript' },
       { 'data': 'scmUrl' },
       { 'data': 'patchesUrl' },
+      { 'data': 'creationTime' },
+      { 'data': 'lastModificationTime' },
       { 'data':
         function(json) {
-          return '<button class="build btn btn-block btn-danger" value="' + json.id + '">Build</button>';
+          console.log('button created');
+          return '<button class="build btn btn-block btn-danger" data-configuration-id="' + json.id + '">Build</button>';
         }
       }
     ]
   });
   
-  $('#configuration_content tbody').on( 'click', 'button.build', function (event) {
-    event.preventDefault();
-    $.post(PNC_REST_BASE_URL + 'configuration/' + $(this).attr('value') + '/build').
-        done(function() {
-          $('#configuration_content').prepend('<br/><div class="alert alert-success" role="alert">Build successfully triggered</div>');
-          console.log('success');
-        }).fail(function() {
-          $('#configuration_content').prepend('<br/><div class="alert alert-danger" role="alert">Error attempting to trigger build</div>');
-          console.log('failure');
-        });
-  });
+  $('#configuration tbody').on( 'click', 'button.build', 
+    function (event) {
+      event.preventDefault();
+      console.log('trigger build click registered');
+      $.post(PNC_REST_BASE_URL + '/product/' + sessionStorage.getItem('productId') + '/version/' + 
+             sessionStorage.getItem('versionId') + '/project/' + sessionStorage.getItem('projectId') + 
+             '/configuration/' + $(this).data("configuration-id") + '/build')
+        .done(
+          function(data, text, xhr) {
+            $('#alert-space').prepend('<br/><div class="alert alert-success" role="alert">Build successfully triggered</div>');
+            console.log('Trigger build successful: data={%O}, text={%O}, xhr={%O}', data, text, xhr);
+          }
+        )
+        .fail(
+          function(data, text, xhr) {
+            $('#alert-space').prepend('<br/><div class="alert alert-danger" role="alert">Error attempting to trigger build</div>');
+            console.log('Trigger build failed: data={%O}, text={%O}, xhr={%O}', data, text, xhr);
+          }
+        );
+    }
+  );
 
   $('#configuration_content').on( 'click', 'button.addConfiguration', function (event) {
     event.preventDefault();
@@ -73,7 +86,7 @@ $(document).ready(function() {
        console.log('Creating new build configuration: ' + data);
 
        $.ajax({
-               url: PNC_REST_BASE_URL + 'product/' + productId + '/version/' + versionId + '/project/' + projectId + '/configuration',
+               url: PNC_REST_BASE_URL + '/product/' + productId + '/version/' + versionId + '/project/' + projectId + '/configuration',
                type: 'POST',
                dataType : 'json',
                data: data,
