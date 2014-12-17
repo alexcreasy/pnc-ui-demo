@@ -4,7 +4,7 @@ $(document).ready(function() {
   var product = $.parseJSON(sessionStorage.getItem('product'));
   var version = $.parseJSON(sessionStorage.getItem('version'));
   var project = $.parseJSON(sessionStorage.getItem('project'));
-  var configuration = $.parseJSON(sessionStorage.getItem('configuration'));
+  //var configuration = $.parseJSON(sessionStorage.getItem('configuration'));
   var configurationId = sessionStorage.getItem('configurationId');
   sessionStorage.clear();
   sessionStorage.setItem('product', JSON.stringify(product));
