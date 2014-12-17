@@ -51,21 +51,22 @@ $(document).ready(function() {
 
      var prodTable = $('#results').dataTable( {
        stateSave: true,
+       "bAutoWidth": false,
        "aaData": filteredResults,
        "aoColumns": [
-         { "data": "id" },
-         { "data": "status" },
-         { "data":
+         { "sWidth": "5%", "data": "id" },
+         { "sWidth": "10%", "data": "status" },
+         { "bSortable": false, "sWidth": "60%", "data":
             function(json) {
-              return '<div id="divLog"><h2>...</h2></div><button class="logs btn btn-default" value="' + json.id + '">View Logs</button>';
+              return '<div class="divrep" id="divLog"><h2>...</h2></div><button class="logs btn btn-default" value="' + json.id + '">View Logs</button>';
             }
          },
-         { "data":
+         { "sWidth": "10%", "data":
             function(json) {
               return buildConfigIdentifier;
             }
          },
-         { "data":
+         { "sWidth": "15%", "data":
             function(json) {
               return buildConfigScript;
             }
@@ -77,12 +78,18 @@ $(document).ready(function() {
   $('#results').on( 'click', 'button.logs', function (event) {
     event.preventDefault();
     var resultId = $(this).attr('value');
-    $("#divLog").load(PNC_REST_BASE_URL + '/result/' + resultId + '/log', function(responseTxt,statusTxt,xhr){
-        if (statusTxt == "success") {
-          console.log("External log loaded successfully!");
-        }
-        if (statusTxt=="error") {
-          console.log("Error: "+xhr.status+": "+xhr.statusText);
+
+    $.ajax({
+        url: PNC_REST_BASE_URL + '/result/' + resultId + '/log',
+        method: "GET",
+        async: false,
+        cache: false,
+        dataType: "text",
+        success: function( data, textStatus, jqXHR ) {
+            var resourceContent = data;
+            var preStyle = 'style="height: 30pc; overflow-y: scroll; overflow-x: scroll; width: ' + $("#divLog").width() + 'px;"';
+            data = '<pre ' + preStyle + '>' + data + '</pre>';
+            $("#divLog").html(data);
         }
     });
   });
