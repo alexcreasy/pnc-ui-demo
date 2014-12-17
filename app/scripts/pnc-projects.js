@@ -2,16 +2,20 @@
 $(document).ready(function() {
 
   // Clear all sessionStorage except productId and versionId
-  var productId = sessionStorage.getItem('productId');
-  var versionId = sessionStorage.getItem('versionId');  
+  var product = $.parseJSON(sessionStorage.getItem('product'));
+  var version = $.parseJSON(sessionStorage.getItem('version'));
   sessionStorage.clear();
-  sessionStorage.setItem('productId', productId);
-  sessionStorage.setItem('versionId', versionId);  
+  sessionStorage.setItem('product', JSON.stringify(product));
+  sessionStorage.setItem('version', JSON.stringify(version));
+
+  $('#productInfoName').html(product.name);
+  $('#productInfoDesc').html(product.description);
+  $('#productInfoVersion').html(version.version);
   
   var prodTable = $('#projects').dataTable( {
     stateSave: true,
     'ajax': {
-      'url': PNC_REST_BASE_URL + '/product/' + productId + '/version/' + versionId + '/project',
+      'url': PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + version.id + '/project',
       'type': 'GET',
       'dataSrc': ''
     }, 
@@ -31,10 +35,15 @@ $(document).ready(function() {
   
   $('#projects tbody').on( 'click', 'button.configurations', function (event) {
     event.preventDefault();
-    sessionStorage.setItem("projectId", $(this).attr('value'));
-    console.log('Stored in sessionStorage: projectId ' + $(this).attr('value'));
-    
-    $(location).attr('href',"configurations.html");
+    $.ajax({
+        url: PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + version.id + '/project/' + $(this).attr('value'),
+        method: "GET",
+        success: function( data, textStatus, jqXHR ) {
+            sessionStorage.setItem("project", JSON.stringify(data));
+            console.log('Stored in sessionStorage: project ' + JSON.stringify(data));
+            $(location).attr('href',"configurations.html");
+        }
+    });
   });
 
 } );

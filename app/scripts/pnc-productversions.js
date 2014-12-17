@@ -2,14 +2,17 @@
 $(document).ready(function() {
 
   // Clear all sessionStorage except productId
-  var productId = sessionStorage.getItem('productId');
+  var product = $.parseJSON(sessionStorage.getItem('product'));
   sessionStorage.clear();
-  sessionStorage.setItem('productId', productId);
-  
+  sessionStorage.setItem('product', JSON.stringify(product));
+
+  $('#productInfoName').html(product.name);
+  $('#productInfoDesc').html(product.description);
+
   var prodTable = $('#productversion').dataTable( {
     stateSave: true,
     'ajax': {
-      'url': PNC_REST_BASE_URL + '/product/' + productId + '/version',
+      'url': PNC_REST_BASE_URL + '/product/' + product.id + '/version',
       'type': 'GET',
       'dataSrc': ''
     }, 
@@ -26,9 +29,16 @@ $(document).ready(function() {
   
   $('#productversion tbody').on( 'click', 'button.projects', function (event) {
     event.preventDefault();
-    sessionStorage.setItem("versionId", $(this).attr('value'));
-    console.log('Stored in sessionStorage: versionId ' + $(this).attr('value'));
-    
-    $(location).attr('href',"project.html");
+
+    $.ajax({
+        url: PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + $(this).attr('value'),
+        method: "GET",
+        success: function( data, textStatus, jqXHR ) {
+            sessionStorage.setItem("version", JSON.stringify(data));
+            console.log('Stored in sessionStorage: version ' + JSON.stringify(data));
+            $(location).attr('href',"project.html");
+        }
+    });
   });
+
 } );
