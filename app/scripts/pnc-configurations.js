@@ -41,7 +41,6 @@ $(document).ready(function() {
       },
       { 'data':
         function(json) {
-          console.log('button created');
           return '<button class="build btn btn-block btn-danger" data-configuration-id="' + json.id + '">Build</button>';
         }
       }
