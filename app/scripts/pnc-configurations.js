@@ -25,12 +25,18 @@ $(document).ready(function() {
       { 'data': 'patchesUrl' },
       { 'data': 
         function(json) {
-          return new Date(json.creationTime*1000).toLocaleString();;
+          if (json.creationTime == null) {
+            return '';
+          }
+          return new Date(json.creationTime).toLocaleString();;
         }
       },
       { 'data': 
         function(json) {
-          return new Date(json.creationTime*1000).toLocaleString();;
+          if (json.creationTime == null) {
+            return '';
+          }
+          return new Date(json.lastModificationTime).toLocaleString();;
         } 
       },
       { 'data':
