@@ -1,15 +1,15 @@
 // Initialize Datatables
 $(document).ready(function() {
 
-  // Clear all sessionStorage except productId,versionId and projectId
-  var productId = sessionStorage.getItem('productId');
-  var versionId = sessionStorage.getItem('versionId');
-  var projectId = sessionStorage.getItem('projectId');
+  var product = $.parseJSON(sessionStorage.getItem('product'));
+  var version = $.parseJSON(sessionStorage.getItem('version'));
+  var project = $.parseJSON(sessionStorage.getItem('project'));
+  //var configuration = $.parseJSON(sessionStorage.getItem('configuration'));
   var configurationId = sessionStorage.getItem('configurationId');
   sessionStorage.clear();
-  sessionStorage.setItem('productId', productId);
-  sessionStorage.setItem('versionId', versionId);
-  sessionStorage.setItem('projectId', projectId);
+  sessionStorage.setItem('product', JSON.stringify(product));
+  sessionStorage.setItem('version', JSON.stringify(version));
+  sessionStorage.setItem('project', JSON.stringify(project));
   sessionStorage.setItem('configurationId', configurationId);
 
   var filteredResults = [];
@@ -32,7 +32,7 @@ $(document).ready(function() {
          }
      }),
      $.ajax({
-         url: PNC_REST_BASE_URL + '/product/' + productId + '/version/' + versionId + '/project/' + projectId + '/configuration',
+         url: PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + version.id + '/project/' + project.id + '/configuration',
          method: "GET",
          success: function (data) {
 

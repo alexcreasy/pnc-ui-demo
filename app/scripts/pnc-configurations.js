@@ -59,8 +59,7 @@ $(document).ready(function() {
     function (event) {
       event.preventDefault();
       console.log('trigger build click registered');
-      $.post(PNC_REST_BASE_URL + '/product/' + sessionStorage.getItem('productId') + '/version/' + 
-             sessionStorage.getItem('versionId') + '/project/' + sessionStorage.getItem('projectId') + 
+      $.post(PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + version.id + '/project/' + project.id +
              '/configuration/' + $(this).data("configuration-id") + '/build')
         .done(
           function(data, text, xhr) {
