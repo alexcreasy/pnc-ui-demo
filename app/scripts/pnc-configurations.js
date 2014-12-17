@@ -2,18 +2,26 @@
 $(document).ready(function() {
 
   // Clear all sessionStorage except productId,versionId and projectId
-  var productId = sessionStorage.getItem('productId');
-  var versionId = sessionStorage.getItem('versionId');
-  var projectId = sessionStorage.getItem('projectId');
+  var product = $.parseJSON(sessionStorage.getItem('product'));
+  var version = $.parseJSON(sessionStorage.getItem('version'));
+  var project = $.parseJSON(sessionStorage.getItem('project'));
   sessionStorage.clear();
-  sessionStorage.setItem('productId', productId);
-  sessionStorage.setItem('versionId', versionId);
-  sessionStorage.setItem('projectId', projectId);
+  sessionStorage.setItem('product', JSON.stringify(product));
+  sessionStorage.setItem('version', JSON.stringify(version));
+  sessionStorage.setItem('project', JSON.stringify(project));
+
+  $('#productInfoName').html(product.name);
+  $('#productInfoDesc').html(product.description);
+  $('#productInfoVersion').html(version.version);
+  $('#projectInfoName').html(project.name);
+  $('#projectInfoDesc').html(project.description);
+  $('#projectInfoProjectUrl').html(project.projectUrl);
+  $('#projectInfoIssueTrackerUrl').html(project.issueTrackerUrl);
 
   var prodTable = $('#configuration').dataTable( {
     stateSave: true,
     'ajax': {
-      'url': PNC_REST_BASE_URL + '/product/' + productId + '/version/' + versionId + '/project/' + projectId + '/configuration',
+      'url': PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + version.id + '/project/' + project.id + '/configuration',
       'type': 'GET',
       'dataSrc': ''
     }, 
@@ -99,7 +107,7 @@ $(document).ready(function() {
        console.log('Creating new build configuration: ' + data);
 
        $.ajax({
-               url: PNC_REST_BASE_URL + '/product/' + productId + '/version/' + versionId + '/project/' + projectId + '/configuration',
+               url: PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + version.id + '/project/' + project.id + '/configuration',
                type: 'POST',
                dataType : 'json',
                data: data,

@@ -18,7 +18,7 @@ $(document).ready(function() {
       { 'data': 'description' },
       { 'data':
         function(json) {
-          return '<button class="versions btn btn-default" value="' + json.id + '">View Versions</button>';
+          return '<button class="versions btn btn-default" value=' + json.id + '>View Versions</button>';
         }
       }
     ]
@@ -26,10 +26,16 @@ $(document).ready(function() {
 
   $('#products tbody').on( 'click', 'button.versions', function (event) {
     event.preventDefault();
-    sessionStorage.setItem("productId", $(this).attr('value'));
-    console.log('Stored in sessionStorage: productId ' + $(this).attr('value'));
 
-    $(location).attr('href',"productversions.html");
+    $.ajax({
+        url: PNC_REST_BASE_URL + '/product/' + $(this).attr('value'),
+        method: "GET",
+        success: function( data, textStatus, jqXHR ) {
+            sessionStorage.setItem("product", JSON.stringify(data));
+            console.log('Stored in sessionStorage: product ' + JSON.stringify(data));
+            $(location).attr('href',"productversions.html");
+        }
+    });
   });
 
 } );
