@@ -85,7 +85,7 @@ $(document).ready(function() {
                     throw new Error('Maximum number of polls exceeded');
                   }
 
-                  console.log('Poll #%d Result: data={%O}, textStatus{%O}', poll++, data, textStatus);
+                  console.log('Poll #%d Result: data={%O}, textStatus{%O}', polls++, data, textStatus);
 
                   // Action the result of the poll
                   switch (data.status) {
@@ -116,8 +116,8 @@ $(document).ready(function() {
 
   function buildCompleted(configId, pollUrl) {
     console.log('buildCompleted()');
-    sessionStorage.setItem('configId', configId);
-    $('#in-progress-build-' + configId).parents('td').html('<a class="btn btn-success" href="views/results.html">COMPLETED</a>');
+    sessionStorage.setItem('configurationId', configId);
+    $('#in-progress-build-' + configId).parents('td').html('<a class="btn btn-success" href="results.html">COMPLETED</a>');
     $('#alert-space').empty();
   }
 
@@ -129,9 +129,7 @@ $(document).ready(function() {
 
       var configId = $(this).data("configuration-id");
 
-      $.post(PNC_REST_BASE_URL + '/product/' + sessionStorage.getItem('productId') + '/version/' + 
-             sessionStorage.getItem('versionId') + '/project/' + sessionStorage.getItem('projectId') + 
-             '/configuration/' + configId + '/build')
+      $.post(PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + version.id + '/project/' + project.id + '/configuration/' + configId + '/build')
         .done(
           function(data, text, xhr) {
             $('#alert-space').prepend('<br/><div class="alert alert-success" role="alert">Build successfully triggered</div>');
