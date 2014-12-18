@@ -22,41 +22,73 @@ $(document).ready(function() {
   $('#projectInfoProjectUrl').html(project.projectUrl);
   $('#projectInfoIssueTrackerUrl').html(project.issueTrackerUrl);
 
-  var prodTable = $('#configuration').dataTable( {
-    stateSave: true,
-    'ajax': {
-      'url': PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + version.id + '/project/' + project.id + '/configuration',
-      'type': 'GET',
-      'dataSrc': ''
-    }, 
-    'columns': [
-      { 'data': 'id' },
-      { 'data': 'identifier' },
-      { 'data': 'buildScript' },
-      { 'data': 'scmUrl' },
-      { 'data': 'patchesUrl' },
-      { 'data': 
-        function(json) {
-          if (json.creationTime == null) {
-            return '';
-          }
-          return new Date(json.creationTime).toLocaleString();;
+  var configurationsWithResults = [];
+
+  $.when(
+     $.ajax({
+         url: PNC_REST_BASE_URL + '/result',
+         method: "GET",
+         success: function (data) {
+           $.each(data, function(entryIndex, entry){
+             if ($.inArray(entry['projectBuildConfigurationId'], configurationsWithResults) === -1) {
+                configurationsWithResults.push(entry['projectBuildConfigurationId']);
+             }
+           });
+         },
+         error: function (data) {
+             console.log(JSON.stringify(data));
+         }
+     })
+  ).then( function(){
+      $('#configuration').dataTable( {
+        stateSave: true,
+        'ajax': {
+          'url': PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + version.id + '/project/' + project.id + '/configuration',
+          'type': 'GET',
+          'dataSrc': ''
+        },
+        'columns': [
+          { 'data': 'id' },
+          { 'data': 'identifier' },
+          { 'data': 'buildScript' },
+          { 'data': 'scmUrl' },
+          { 'data': 'patchesUrl' },
+          { 'data':
+            function(json) {
+              if (json.creationTime == null) {
+                return '';
+              }
+              return new Date(json.creationTime).toLocaleString();;
+            }
+          },
+          { 'data':
+            function(json) {
+              if (json.creationTime == null) {
+                return '';
+              }
+              return new Date(json.lastModificationTime).toLocaleString();;
+            }
+          },
+          { 'data':
+            function(json) {
+              var btnBuild = '<button class="build btn btn-block btn-danger" id="btn-trigger-build-' + json.id + '" data-configuration-id="' + json.id + '">Build</button>';
+              var btnResults = '<button class="results btn btn-block btn-default" value="' + json.id + '">View Results</button>';
+
+              if (!($.inArray(json.id, configurationsWithResults) === -1)) {
+                return btnBuild + btnResults;
+              }
+              return btnBuild;
+           }
         }
-      },
-      { 'data': 
-        function(json) {
-          if (json.creationTime == null) {
-            return '';
-          }
-          return new Date(json.lastModificationTime).toLocaleString();;
-        } 
-      },
-      { 'data':
-        function(json) {
-          return '<button class="build btn btn-block btn-danger" id="btn-trigger-build-' + json.id + '" data-configuration-id="' + json.id + '">Build</button>';
-        }
-      }
-    ]
+        ]
+     });
+  });
+
+  $('#configuration_content').on( 'click', 'button.results', function (event) {
+    event.preventDefault();
+    sessionStorage.setItem('configurationId', $(this).attr('value'));
+    console.log('Stored in sessionStorage: configurationId ' + $(this).attr('value'));
+    $(location).attr('href',"results.html");
   });
 
   /*
