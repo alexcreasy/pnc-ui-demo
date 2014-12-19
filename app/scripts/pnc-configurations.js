@@ -97,6 +97,30 @@ $(document).ready(function() {
    *
    */
 
+  $('#configuration_content').on( 'click', 'button.build', 
+    function (event) {
+      event.preventDefault();
+      console.log('trigger build click registered');
+
+      var configId = $(this).data("configuration-id");
+
+      $.post(PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + version.id + '/project/' + project.id + '/configuration/' + configId + '/build')
+        .done(
+          function(data, text, xhr) {
+            $('#alert-space').prepend('<br/><div class="alert alert-success" role="alert">Build successfully triggered</div>');
+            console.log('Trigger build successful: data={%O}, text={%O}, xhr={%O}', data, text, xhr);
+            postTriggerBuild(configId, data);
+          }
+        )
+        .fail(
+          function(data, text, xhr) {
+            $('#alert-space').prepend('<br/><div class="alert alert-danger" role="alert">Error attempting to trigger build</div>');
+            console.log('Trigger build failed: data={%O}, text={%O}, xhr={%O}', data, text, xhr);
+          }
+        );
+    }
+  );
+
   function postTriggerBuild(configId, pollUrl) {
     console.log('postTriggerBuild()');
     $('#btn-trigger-build-' + configId).parents('td').html(
@@ -152,31 +176,6 @@ $(document).ready(function() {
     $('#in-progress-build-' + configId).parents('td').html('<a class="btn btn-success" href="results.html">COMPLETED</a>');
     $('#alert-space').empty();
   }
-
-
-  $('#configuration tbody').on( 'click', 'button.build', 
-    function (event) {
-      event.preventDefault();
-      console.log('trigger build click registered');
-
-      var configId = $(this).data("configuration-id");
-
-      $.post(PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + version.id + '/project/' + project.id + '/configuration/' + configId + '/build')
-        .done(
-          function(data, text, xhr) {
-            $('#alert-space').prepend('<br/><div class="alert alert-success" role="alert">Build successfully triggered</div>');
-            console.log('Trigger build successful: data={%O}, text={%O}, xhr={%O}', data, text, xhr);
-            postTriggerBuild(configId, data);
-          }
-        )
-        .fail(
-          function(data, text, xhr) {
-            $('#alert-space').prepend('<br/><div class="alert alert-danger" role="alert">Error attempting to trigger build</div>');
-            console.log('Trigger build failed: data={%O}, text={%O}, xhr={%O}', data, text, xhr);
-          }
-        );
-    }
-  );
 
 
   /*
