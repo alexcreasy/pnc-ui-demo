@@ -198,8 +198,8 @@ $(document).ready(function() {
   function buildCompleted(configId, pollUrl) {
     console.log('buildCompleted(configId=%d, pollUrl=%s)', configId, pollUrl);
     var parentTd = $('#in-progress-build-' + configId).parents('td');
-    parentTd.html('<button class="results btn btn-block btn-default" value="' + configId + '">View Results</button>')
-    $('#alert-space').html('<br/><div class="alert alert-info" role="alert">Build successfully triggered</div>');
+    parentTd.html('<button class="build btn btn-block btn-danger" id="btn-trigger-build-' + configId + '" data-configuration-id="' + configId + '">Build</button><button class="results btn btn-block btn-default" value="' + configId + '">View Results</button>');
+    $('#alert-space').html('<br/><div class="alert alert-info" role="alert">Build of configuration #' + configId + ' completed</div>');
   }
 
 
