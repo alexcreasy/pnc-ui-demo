@@ -71,6 +71,29 @@ $(document).ready(function() {
           },
           { 'data':
             function(json) {
+              // Check if build is running       
+              $.get(PNC_REST_BASE_URL + '/result/running/' + json.id)
+                .fail(
+                  // The HTTP request failed, we don't know if the build is running or not.
+                  function(data, text, xhr) {
+                    console.warn('Attempt to check if build is running failed: data={%O}, text={%O}, xhr={%O}', data, text, xhr)
+                  }
+                ).done(
+                  function(data, text, xhr) {
+                    console.log('Check if build is running : data={%O}, text={%O}, xhr={%O}', data, text, xhr);
+                    if (xhr.status === 204) {
+                      // Build IS NOT running
+                      console.log('build {%O} is not running', json)
+                    } else if (xhr.status === 200 && data.status === 'BUILDING') {
+                      // Build IS running
+                      postTriggerBuild(json.id, PNC_REST_BASE_URL + '/result/running/' + json.id);
+                      console.log('build {%O} is running', json);
+                    } else {
+                      throw new Error('Unexpected outcome of HTTP request: xhr=' + xhr);
+                    }
+                  }
+                );
+
               var btnBuild = '<button class="build btn btn-block btn-danger" id="btn-trigger-build-' + json.id + '" data-configuration-id="' + json.id + '">Build</button>';
               var btnResults = '<button class="results btn btn-block btn-default" value="' + json.id + '">View Results</button>';
 
@@ -83,6 +106,7 @@ $(document).ready(function() {
         ]
      });
   });
+
 
   $('#configuration_content').on( 'click', 'button.results', function (event) {
     event.preventDefault();
@@ -122,9 +146,10 @@ $(document).ready(function() {
   );
 
   function postTriggerBuild(configId, pollUrl) {
-    console.log('postTriggerBuild()');
-    $('#btn-trigger-build-' + configId).parents('td').html(
+    console.log('postTriggerBuild(configId=%d, pollUrl=%s)', configId, pollUrl);
+    $('#btn-trigger-build-' + configId).parents('td').prepend(
       '<p><span id="in-progress-build-' + configId + '" class="spinner spinner-xs spinner-inline"></span> Building</p>');
+    $('#btn-trigger-build-' + configId).remove();
 
     // poll counter
     var polls = 0;
@@ -171,10 +196,10 @@ $(document).ready(function() {
   }
 
   function buildCompleted(configId, pollUrl) {
-    console.log('buildCompleted()');
-    sessionStorage.setItem('configurationId', configId);
-    $('#in-progress-build-' + configId).parents('td').html('<a class="btn btn-success" href="results.html">COMPLETED</a>');
-    $('#alert-space').empty();
+    console.log('buildCompleted(configId=%d, pollUrl=%s)', configId, pollUrl);
+    var parentTd = $('#in-progress-build-' + configId).parents('td');
+    parentTd.html('<button class="results btn btn-block btn-default" value="' + configId + '">View Results</button>')
+    $('#alert-space').html('<br/><div class="alert alert-primary" role="alert">Build successfully triggered</div>');
   }
 
 
