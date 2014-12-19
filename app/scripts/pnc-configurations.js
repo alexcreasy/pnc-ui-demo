@@ -199,7 +199,7 @@ $(document).ready(function() {
     console.log('buildCompleted(configId=%d, pollUrl=%s)', configId, pollUrl);
     var parentTd = $('#in-progress-build-' + configId).parents('td');
     parentTd.html('<button class="results btn btn-block btn-default" value="' + configId + '">View Results</button>')
-    $('#alert-space').html('<br/><div class="alert alert-primary" role="alert">Build successfully triggered</div>');
+    $('#alert-space').html('<br/><div class="alert alert-info" role="alert">Build successfully triggered</div>');
   }
 
 
