@@ -12,6 +12,14 @@ $(document).ready(function() {
   sessionStorage.setItem('project', JSON.stringify(project));
   sessionStorage.setItem('configurationId', configurationId);
 
+  $('#productInfoName').html(product.name);
+  $('#productInfoDesc').html(product.description);
+  $('#productInfoVersion').html(version.version);
+  $('#projectInfoName').html(project.name);
+  $('#projectInfoDesc').html(project.description);
+  $('#projectInfoProjectUrl').html(project.projectUrl);
+  $('#projectInfoIssueTrackerUrl').html(project.issueTrackerUrl);
+
   var filteredResults = [];
   var buildConfigIdentifier = '';
   var buildConfigScript = '';
@@ -55,7 +63,17 @@ $(document).ready(function() {
        "aaData": filteredResults,
        "aoColumns": [
          { "sWidth": "5%", "data": "id" },
-         { "sWidth": "10%", "data": "status" },
+         { "sWidth": "10%", "data":
+            function(json) {
+              if (json.status == 'SUCCESS') {
+                return '<a class="label label-success">SUCCESS</a>';
+              }
+              else if (json.status == 'FAILED') {
+                return '<a class="label label-danger">FAILED</a>';
+              }
+              return '<a class="label label-warning">' + json.status + '</a>';
+            }
+         },
          { "bSortable": false, "sWidth": "60%", "data":
             function(json) {
               return '<div class="divrep" id="divLog"><h2>...</h2></div><button class="logs btn btn-default" value="' + json.id + '">View Logs</button>';
