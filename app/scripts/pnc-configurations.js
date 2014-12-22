@@ -24,6 +24,13 @@ $(document).ready(function() {
 
   var configurationsWithResults = [];
 
+
+  // Holds timeout id's so they can be cancelled
+  var timeouts = {};
+
+  // Holds action column's that need to be drawn once the table is initialized.
+  var cellsToDraw = [];
+
   $.when(
      $.ajax({
          url: PNC_REST_BASE_URL + '/result',
@@ -69,50 +76,31 @@ $(document).ready(function() {
               return new Date(json.lastModificationTime).toLocaleString();;
             }
           },
-          { 'data':
-            function(json) {
-              // Check if build is running       
-              $.get(PNC_REST_BASE_URL + '/result/running/' + json.id)
-                .fail(
-                  // The HTTP request failed, we don't know if the build is running or not.
-                  function(data, text, xhr) {
-                    console.warn('Attempt to check if build is running failed: data={%O}, text={%O}, xhr={%O}', data, text, xhr)
-                  }
-                ).done(
-                  function(data, text, xhr) {
-                    console.log('Check if build is running : data={%O}, text={%O}, xhr={%O}', data, text, xhr);
-                    if (xhr.status === 204) {
-                      // Build IS NOT running
-                      console.log('build {%O} is not running', json)
-                    } else if (xhr.status === 200 && data.status === 'BUILDING') {
-                      // Build IS running
-                      postTriggerBuild(json.id, PNC_REST_BASE_URL + '/result/running/' + json.id);
-                      console.log('build {%O} is running', json);
-                    } else {
-                      throw new Error('Unexpected outcome of HTTP request: xhr=' + xhr);
-                    }
-                  }
-                );
-
-              var btnBuild = '<button class="build btn btn-block btn-danger" id="btn-trigger-build-' + json.id + '" data-configuration-id="' + json.id + '">Build</button>';
-              var btnResults = '<button class="results btn btn-block btn-default" value="' + json.id + '">View Results</button>';
-
-              if (!($.inArray(json.id, configurationsWithResults) === -1)) {
-                return btnBuild + btnResults;
-              }
-              return btnBuild;
-           }
-        }
-        ]
+          { 'defaultContent': ''}
+      ],
+      'columnDefs': [{
+        'targets': 7,
+        'createdCell': 
+          function (td, cellData, rowData, row, col) {
+              $(td).attr('id', 'action-cell-config-id-' + rowData.id);
+              cellsToDraw.push(rowData.id);
+          }
+        }],
      });
   });
 
 
-  $('#configuration_content').on( 'click', 'button.results', function (event) {
+  $('#configuration_content').on( 'click', 'button.results', function(event) {
     event.preventDefault();
     sessionStorage.setItem('configurationId', $(this).attr('value'));
     console.log('Stored in sessionStorage: configurationId ' + $(this).attr('value'));
     $(location).attr('href',"results.html");
+  });
+
+  $('#configuration').on( 'init.dt', function () {
+    $.each(cellsToDraw, function(index, obj) {
+      drawActionColumn(obj);
+    })
   });
 
   /*
@@ -120,6 +108,87 @@ $(document).ready(function() {
    * Triggering a build
    *
    */
+
+  // $('#configuration_content').on( 'click', 'button.build', 
+  //   function (event) {
+  //     event.preventDefault();
+  //     console.log('trigger build click registered');
+
+  //     var configId = $(this).data("configuration-id");
+
+  //     $.post(PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + version.id + '/project/' + project.id + '/configuration/' + configId + '/build')
+  //       .done(
+  //         function(data, text, xhr) {
+  //           $('#alert-space').prepend('<br/><div class="alert alert-success" role="alert">Build successfully triggered</div>');
+  //           console.log('Trigger build successful: data={%O}, text={%O}, xhr={%O}', data, text, xhr);
+  //           postTriggerBuild(configId, data);
+  //         }
+  //       )
+  //       .fail(
+  //         function(data, text, xhr) {
+  //           $('#alert-space').prepend('<br/><div class="alert alert-danger" role="alert">Error attempting to trigger build</div>');
+  //           console.log('Trigger build failed: data={%O}, text={%O}, xhr={%O}', data, text, xhr);
+  //         }
+  //       );
+  //   }
+  // );
+
+  // function postTriggerBuild(configId, pollUrl) {
+  //   console.log('postTriggerBuild(configId=%d, pollUrl=%s)', configId, pollUrl);
+  //   $('#btn-trigger-build-' + configId).parents('td').prepend(
+  //     '<p><span id="in-progress-build-' + configId + '" class="spinner spinner-xs spinner-inline"></span> Building</p>');
+  //   $('#btn-trigger-build-' + configId).remove();
+
+  //   // poll counter
+  //   var polls = 0;
+  //   // Self executing polling function
+  //   (function poll(){
+  //     setTimeout(
+  //       function(){
+  //         console.log('SetTimeOutFunction()');
+  //         $.ajax(
+  //           { url: pollUrl, 
+  //             complete: 
+  //               function(data, textStatus) {
+  //                 if (polls > MAX_POLLS) {
+  //                   throw new Error('Maximum number of polls exceeded');
+  //                 }
+
+  //                 console.log('Poll #%d Result: data={%O}, textStatus{%O}', polls++, data, textStatus);
+
+  //                 // Action the result of the poll
+  //                 switch (data.status) {
+  //                   case 200:
+  //                     if (data.responseJSON.status === 'BUILDING') {
+  //                       console.log('BUILD IN PROGRESS');
+  //                       // Contiune polling
+  //                       poll();
+  //                     } else {
+  //                       throw new Error('HTTP response 200 but JSON status other than BUILDING returned');
+  //                     }
+  //                     break;
+  //                   case 204:
+  //                     console.log('BUILD COMPLETED');
+  //                     buildCompleted(configId, pollUrl);
+  //                     break;
+  //                   default:
+  //                     throw new Error('Unrecognised HTTP response received: ' + data.responseJSON.status);
+  //                 }
+  //               } 
+  //           }
+  //         );
+  //       }, 
+  //       POLL_INTERVAL
+  //     );
+  //   })();
+  // }
+
+  // function buildCompleted(configId, pollUrl) {
+  //   console.log('buildCompleted(configId=%d, pollUrl=%s)', configId, pollUrl);
+  //   var parentTd = $('#in-progress-build-' + configId).parents('td');
+  //   parentTd.html('<button class="build btn btn-block btn-danger" id="btn-trigger-build-' + configId + '" data-configuration-id="' + configId + '">Build</button><button class="results btn btn-block btn-default" value="' + configId + '">View Results</button>');
+  //   $('#alert-space').html('<br/><div class="alert alert-info" role="alert">Build of configuration #' + configId + ' completed</div>');
+  // }
 
   $('#configuration_content').on( 'click', 'button.build', 
     function (event) {
@@ -133,7 +202,8 @@ $(document).ready(function() {
           function(data, text, xhr) {
             $('#alert-space').prepend('<br/><div class="alert alert-success" role="alert">Build successfully triggered</div>');
             console.log('Trigger build successful: data={%O}, text={%O}, xhr={%O}', data, text, xhr);
-            postTriggerBuild(configId, data);
+            drawActionColumn(configId);
+            startPolling(configId, buildCompleted);         
           }
         )
         .fail(
@@ -145,63 +215,112 @@ $(document).ready(function() {
     }
   );
 
-  function postTriggerBuild(configId, pollUrl) {
-    console.log('postTriggerBuild(configId=%d, pollUrl=%s)', configId, pollUrl);
-    $('#btn-trigger-build-' + configId).parents('td').prepend(
-      '<p><span id="in-progress-build-' + configId + '" class="spinner spinner-xs spinner-inline"></span> Building</p>');
-    $('#btn-trigger-build-' + configId).remove();
+//   function triggerBuild(configId) {
+//     return $.post(PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + version.id + '/project/' + project.id + '/configuration/' + configId + '/build');
+//   //       .done(
+//   //         function(data, text, xhr) {
+//   //           $('#alert-space').prepend('<br/><div class="alert alert-success" role="alert">Build successfully triggered</div>');
+//   //           console.log('Trigger build successful: data={%O}, text={%O}, xhr={%O}', data, text, xhr);
+            
+//   //         }
+//   //       )
+//   //       .fail(
+//   //         function(data, text, xhr) {
+//   //           $('#alert-space').prepend('<br/><div class="alert alert-danger" role="alert">Error attempting to trigger build</div>');
+//   //           console.log('Trigger build failed: data={%O}, text={%O}, xhr={%O}', data, text, xhr);
+//   //         }
+//   //       );
+//   // }
+// }
 
+  function buildCompleted(configId) {
+    console.log('buildCompleted(configId=%d)', configId);
+    configurationsWithResults.push(configId);
+    drawActionColumn(configId);
+    $('#alert-space').html('<br/><div class="alert alert-info" role="alert">Build of configuration #' + configId + ' completed</div>');
+  }
+
+  function hasExistingBuilds(configId) {
+    return !($.inArray(configId, configurationsWithResults) === -1);
+  }
+
+  function getBuildStatusPromise(configId) {
+    return $.get(PNC_REST_BASE_URL + '/result/running/' + configId)
+      .fail( function (data, text, xhr) {
+        throw new Error('Error in HTTP request getting build status xhr=' + xhr);        
+      })  
+  }
+
+  function isBuildInProgress(jqXHR) {
+    console.log('isBuildInProgress:: jqXHR={%O}', jqXHR);
+
+    if (jqXHR.status == 204) {
+      return false;
+    } else if (jqXHR.status == 200 && jqXHR.responseJSON.status === 'BUILDING') {
+      return true;
+    }
+    throw new Error('Unexpected outcome of HTTP request: jqXHR=' + jqXHR);
+  }
+
+  function drawActionColumn(configId) {
+    var cell = $('#action-cell-config-id-' + configId);
+    console.log('cell=%O', cell);
+    cell.empty();
+
+    $.when(getBuildStatusPromise(configId))
+      .then(function(data, textStatus, jqXHR) {
+        console.log('drawActionColumn(%d):: data={%O}, textStatus={%O}, jqXHR={%O}', configId, data, textStatus, jqXHR);
+
+        var html;
+        
+        if (isBuildInProgress(jqXHR)) {
+          html = '<p><span class="spinner spinner-xs spinner-inline"></span> Building</p>';
+          if (!isPolling(configId)) {
+            startPolling(configId, buildCompleted);
+          }
+        } else {
+          html = '<button class="build btn btn-block btn-danger" data-configuration-id="' + configId + '">Build</button>';
+        }
+
+        if (hasExistingBuilds(configId)) {
+          html += '<button class="results btn btn-block btn-default" value="' + configId + '">View Results</button>';
+        }
+
+        cell.html(html);
+      }
+    );
+  }
+
+  function startPolling(configId, fnSuccess) {
     // poll counter
     var polls = 0;
-    // Self executing polling function
+
     (function poll(){
-      setTimeout(
+      timeouts[configId] = setTimeout(
         function(){
-          console.log('SetTimeOutFunction()');
-          $.ajax(
-            { url: pollUrl, 
-              complete: 
-                function(data, textStatus) {
-                  if (polls > MAX_POLLS) {
-                    throw new Error('Maximum number of polls exceeded');
-                  }
-
-                  console.log('Poll #%d Result: data={%O}, textStatus{%O}', polls++, data, textStatus);
-
-                  // Action the result of the poll
-                  switch (data.status) {
-                    case 200:
-                      if (data.responseJSON.status === 'BUILDING') {
-                        console.log('BUILD IN PROGRESS');
-                        // Contiune polling
-                        poll();
-                      } else {
-                        throw new Error('HTTP response 200 but JSON status other than BUILDING returned');
-                      }
-                      break;
-                    case 204:
-                      console.log('BUILD COMPLETED');
-                      buildCompleted(configId, pollUrl);
-                      break;
-                    default:
-                      throw new Error('Unrecognised HTTP response received: ' + data.responseJSON.status);
-                  }
-                } 
+          $.when(getBuildStatusPromise(configId))
+            .then(function(data, textStatus, jqXHR) {
+              console.log('Poll #%d for configId: %d Result: data={%O}, textStatus{%O}, jqXHR={%O}', polls++, configId, data, textStatus, jqXHR);
+              if (! isBuildInProgress(jqXHR)) {
+                stopPolling(configId);
+                fnSuccess(configId);                
+              }
             }
           );
+        poll(); 
         }, 
         POLL_INTERVAL
       );
     })();
   }
 
-  function buildCompleted(configId, pollUrl) {
-    console.log('buildCompleted(configId=%d, pollUrl=%s)', configId, pollUrl);
-    var parentTd = $('#in-progress-build-' + configId).parents('td');
-    parentTd.html('<button class="build btn btn-block btn-danger" id="btn-trigger-build-' + configId + '" data-configuration-id="' + configId + '">Build</button><button class="results btn btn-block btn-default" value="' + configId + '">View Results</button>');
-    $('#alert-space').html('<br/><div class="alert alert-info" role="alert">Build of configuration #' + configId + ' completed</div>');
+  function stopPolling(configId) {
+    clearTimeout(timeouts[configId]);
   }
 
+  function isPolling(configId) {
+    return timeouts.hasOwnProperty(configId);
+  }
 
   /*
    *
