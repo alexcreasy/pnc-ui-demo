@@ -76,7 +76,7 @@ $(document).ready(function() {
          },
          { "bSortable": false, "sWidth": "60%", "data":
             function(json) {
-              return '<div class="divrep" id="divLog"><h2>...</h2></div><button class="logs btn btn-default" value="' + json.id + '">View Logs</button>';
+              return '<div class="divrep" id="divLog' + json.id  + '"><h2>...</h2></div><button class="logs btn btn-default" value="' + json.id + '">View Logs</button>';
             }
          },
          { "sWidth": "10%", "data":
@@ -104,10 +104,11 @@ $(document).ready(function() {
         cache: false,
         dataType: "text",
         success: function( data, textStatus, jqXHR ) {
+            var divLogId = "#divLog" + resultId;
             var resourceContent = data;
-            var preStyle = 'style="height: 30pc; overflow-y: scroll; overflow-x: scroll; width: ' + $("#divLog").width() + 'px;"';
+            var preStyle = 'style="height: 30pc; overflow-y: scroll; overflow-x: scroll; width: ' + $(divLogId).width() + 'px;"';
             data = '<pre ' + preStyle + '>' + data + '</pre>';
-            $("#divLog").html(data);
+            $(divLogId).html(data);
         }
     });
   });
