@@ -40,12 +40,12 @@ $(document).ready(function() {
          }
      }),
      $.ajax({
-         url: PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + version.id + '/project/' + project.id + '/configuration',
+         url: PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + version.id + '/project/' + project.id + '/configuration/' + configurationId,
          method: "GET",
          success: function (data) {
 
-           buildConfigIdentifier = data[0].identifier;
-           buildConfigScript = data[0].buildScript;
+           buildConfigIdentifier = data.identifier;
+           buildConfigScript = data.buildScript;
          },
          error: function (data) {
              console.log(JSON.stringify(data));
